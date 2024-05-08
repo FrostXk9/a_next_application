@@ -40,3 +40,42 @@ export async function POST(req, res){
         return NextResponse.json({success : "user successfuly created"})
     }
 }
+
+//update user
+export async function PUT(req, res){
+    let { id, name, email, password } = await req.json();
+
+    // find the user in users array by ID
+    const userIndex = users.findIndex((user) => user.id === id)
+
+    if(userIndex === -1){
+        return NextResponse.json({result: "user not found"}, {status: 404})
+    }
+
+    if(name){
+        users[userIndex].name = name
+    }
+    if(email){
+        users[userIndex].email = email
+    }
+    if(password){
+        users[userIndex].password = password
+    }
+
+    const updatedUserArray = users
+
+    // convert the updated users array to a JSON string
+    const updatedData = JSON.stringify(updatedUserArray, null, 2)
+
+    // write the updated users to a JSON string
+    fs.writeFileSync(
+        // first provide path
+        './src/app/util/db.js',
+        // what we want to send or push
+        `export const users = ${updatedData};`,
+        // encoding
+        'utf-8'
+    );
+
+    return NextResponse.json({success : "user successfuly updated"})
+}
